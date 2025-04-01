@@ -36,6 +36,43 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 // User routes
 /**
  * @swagger
+ * components:
+ *   schemas:
+ *     User:
+ *       type: object
+ *       properties:
+ *         id:
+ *           type: string
+ *           example: "123e4567-e89b-12d3-a456-426614174000"
+ *         email:
+ *           type: string
+ *           example: "john.doe@example.com"
+ *         name:
+ *           type: string
+ *           example: "John Doe"
+ *         password:
+ *           type: string
+ *           example: "securePassword123"
+ *         role:
+ *           type: string
+ *           example: "USER"
+ *         createdAt:
+ *           type: string
+ *           format: date-time
+ *         updatedAt:
+ *           type: string
+ *           format: date-time
+ *   responses:
+ *     Error:
+ *       type: object
+ *       properties:
+ *         error:
+ *           type: string
+ *           example: "Error message"
+ */
+
+/**
+ * @swagger
  * /api/users:
  *   post:
  *     summary: Create a new user
@@ -46,13 +83,33 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
  *         application/json:
  *           schema:
  *             type: object
+ *             required:
+ *               - email
+ *               - name
+ *               - password
  *             properties:
  *               email:
  *                 type: string
+ *                 example: "john.doe@example.com"
  *               name:
  *                 type: string
+ *                 example: "John Doe"
  *               password:
  *                 type: string
+ *                 example: "securePassword123"
+ *     responses:
+ *       200:
+ *         description: User created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/User'
+ *       500:
+ *         description: Server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/responses/Error'
  */
 app.post('/api/users', async (req, res) => {
   try {
@@ -73,6 +130,21 @@ app.post('/api/users', async (req, res) => {
  *   get:
  *     summary: Get all users
  *     tags: [Users]
+ *     responses:
+ *       200:
+ *         description: List of users
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/User'
+ *       500:
+ *         description: Server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/responses/Error'
  */
 app.get('/api/users', async (req, res) => {
   try {
@@ -96,6 +168,26 @@ app.get('/api/users', async (req, res) => {
  *         required: true
  *         schema:
  *           type: string
+ *         example: "123e4567-e89b-12d3-a456-426614174000"
+ *     responses:
+ *       200:
+ *         description: User found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/User'
+ *       404:
+ *         description: User not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/responses/Error'
+ *       500:
+ *         description: Server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/responses/Error'
  */
 app.get('/api/users/:id', async (req, res) => {
   try {
@@ -124,6 +216,42 @@ app.get('/api/users/:id', async (req, res) => {
  *         required: true
  *         schema:
  *           type: string
+ *         example: "123e4567-e89b-12d3-a456-426614174000"
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 example: "john.updated@example.com"
+ *               name:
+ *                 type: string
+ *                 example: "John Updated"
+ *               password:
+ *                 type: string
+ *                 example: "newPassword123"
+ *     responses:
+ *       200:
+ *         description: User updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/User'
+ *       404:
+ *         description: User not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/responses/Error'
+ *       500:
+ *         description: Server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/responses/Error'
  */
 app.put('/api/users/:id', async (req, res) => {
   try {
@@ -151,6 +279,30 @@ app.put('/api/users/:id', async (req, res) => {
  *         required: true
  *         schema:
  *           type: string
+ *         example: "123e4567-e89b-12d3-a456-426614174000"
+ *     responses:
+ *       200:
+ *         description: User deleted successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "User deleted successfully"
+ *       404:
+ *         description: User not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/responses/Error'
+ *       500:
+ *         description: Server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/responses/Error'
  */
 app.delete('/api/users/:id', async (req, res) => {
   try {
