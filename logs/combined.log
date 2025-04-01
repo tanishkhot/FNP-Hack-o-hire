@@ -1,0 +1,5 @@
+{"level":"info","message":"Server running on port 3000","timestamp":"2025-04-01T17:13:44.901Z"}
+{"level":"info","message":"Server running on port 3000","timestamp":"2025-04-01T17:15:30.684Z"}
+{"level":"info","message":"User created: 54b692fb-edbb-48a3-acbc-7dc4dc1b4199","timestamp":"2025-04-01T17:15:49.520Z"}
+{"level":"error","message":"Error creating user: \nInvalid `prisma.user.create()` invocation in\n/Users/tanishkhot/Coding/Hack-O-hire/FNP-Hack-o-hire/src/index.js:59:36\n\n  56  */\n  57 app.post('/api/users', async (req, res) => {\n  58   try {\n→ 59     const user = await prisma.user.create(\nUnique constraint failed on the fields: (`email`)","timestamp":"2025-04-01T17:15:53.542Z"}
+{"level":"error","message":"Error creating user: \nInvalid `prisma.user.create()` invocation in\n/Users/tanishkhot/Coding/Hack-O-hire/FNP-Hack-o-hire/src/index.js:59:36\n\n  56  */\n  57 app.post('/api/users', async (req, res) => {\n  58   try {\n→ 59     const user = await prisma.user.create(\nUnique constraint failed on the fields: (`email`)","timestamp":"2025-04-01T17:15:54.802Z"}
