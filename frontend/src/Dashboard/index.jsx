@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import api from "../services/api";
 
 const Dashboard = () => {
     const [errorLogs, setErrorLogs] = useState([]);
@@ -8,7 +8,7 @@ const Dashboard = () => {
     useEffect(() => {
         const fetchLogs = async () => {
           try {
-            const response = await axios.get("/api/errors/latest");
+            const response = await api.get("/api/errors/latest");
             const { originalError, analysis } = response.data;
             const logLines = [
               JSON.stringify(originalError, null, 2),
@@ -16,16 +16,19 @@ const Dashboard = () => {
             ];
             setErrorLogs(logLines);
           } catch (error) {
-            console.error("Error fetching logs:", error);
-            setErrorLogs(["Failed to load logs."]);
+            console.error("Error fetching logs:", error.response?.data || error.message);
+            setErrorLogs(["Failed to load logs. Error: " + (error.response?.data?.message || error.message)]);
           } finally {
             setLoading(false);
           }
         };
     
         fetchLogs();
+
+        // Add polling for real-time updates
+        const pollInterval = setInterval(fetchLogs, 5000);
+        return () => clearInterval(pollInterval);
       }, []);
-      
 
     return (
         <div className="dashboard">
@@ -37,7 +40,15 @@ const Dashboard = () => {
                     {errorLogs.length > 0 ? (
                         <ul>
                             {errorLogs.map((log, index) => (
-                                <li key={index}>{log}</li>
+                                <li key={index} style={{ 
+                                    whiteSpace: 'pre-wrap',
+                                    padding: '10px',
+                                    margin: '5px 0',
+                                    backgroundColor: '#f5f5f5',
+                                    borderRadius: '4px'
+                                }}>
+                                    {log}
+                                </li>
                             ))}
                         </ul>
                     ) : (
