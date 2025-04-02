@@ -1,3 +1,7 @@
+const chokidar = require('chokidar');
+const fs = require('fs/promises');
+const path = require('path');
+const { analyzeError } = require('./utils/groqAnalyzer');
 const express = require('express');
 const cors = require('cors');
 const swaggerUi = require('swagger-ui-express');
@@ -313,6 +317,86 @@ app.delete('/api/users/:id', async (req, res) => {
     res.json({ message: 'User deleted successfully' });
   } catch (error) {
     logger.error(`Error deleting user: ${error.message}`);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+
+// Add this before the PORT declaration
+let lastError = null;
+
+// Function to read last line of error.log
+async function getLastErrorLog() {
+  try {
+    const logPath = path.join(__dirname, '../logs/error.log');
+    const content = await fs.readFile(logPath, 'utf-8');
+    const lines = content.trim().split('\n');
+    return lines[lines.length - 1];
+  } catch (error) {
+    console.error('Error reading log file:', error);
+    return null;
+  }
+}
+
+// Watch error.log for changes
+const watcher = chokidar.watch(path.join(__dirname, '../logs/error.log'), {
+  persistent: true
+});
+
+watcher.on('change', async () => {
+  lastError = await getLastErrorLog();
+});
+
+/**
+ * @swagger
+ * /api/errors/latest:
+ *   get:
+ *     summary: Get analysis of the latest error
+ *     tags: [Errors]
+ *     responses:
+ *       200:
+ *         description: Error analysis
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 originalError:
+ *                   type: object
+ *                   description: The original error log
+ *                 analysis:
+ *                   type: object
+ *                   properties:
+ *                     explanation:
+ *                       type: string
+ *                     solution:
+ *                       type: string
+ *       404:
+ *         description: No errors found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/responses/Error'
+ */
+app.get('/api/errors/latest', async (req, res) => {
+  try {
+    if (!lastError) {
+      lastError = await getLastErrorLog();
+    }
+
+    if (!lastError) {
+      return res.status(404).json({ error: 'No errors found' });
+    }
+
+    const errorObj = JSON.parse(lastError);
+    const analysis = await analyzeError(errorObj.message);
+
+    res.json({
+      originalError: errorObj,
+      analysis
+    });
+  } catch (error) {
+    logger.error(`Error analyzing latest error: ${error.message}`);
     res.status(500).json({ error: error.message });
   }
 });
